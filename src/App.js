@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -8,20 +8,54 @@ import Services from './components/Services';
 
 const App = () => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [currentSection, setCurrentSection] = useState('home');
+
+  // Check for token on initial load
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      const verifyToken = async () => {
+        try {
+          const response = await fetch('/api/auth/me', {
+            headers: {
+              'Authorization': `Bearer ${storedToken}`
+            }
+          });
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData);
+            setToken(storedToken);
+          } else {
+            localStorage.removeItem('token');
+          }
+        } catch (error) {
+          console.error("Error verifying token", error);
+          localStorage.removeItem('token');
+        }
+      };
+      verifyToken();
+    }
+  }, []);
 
   const handleLogin = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleAuth = (userData) => {
-    setUser(userData);
+  const handleAuth = (authData) => {
+    const { token, user } = authData;
+    localStorage.setItem('token', token);
+    setToken(token);
+    setUser(user);
     setIsAuthModalOpen(false);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
     setUser(null);
+    setCurrentSection('home'); // Go back to home on logout
   };
 
   const handleGetStarted = () => {
@@ -65,7 +99,7 @@ const App = () => {
                 </p>
               </motion.div>
               
-              <CommunityFeed user={user} />
+              <CommunityFeed user={user} token={token} />
             </div>
           </section>
         )}
@@ -98,7 +132,13 @@ const App = () => {
         </motion.button>
         
         <motion.button
-          onClick={() => setCurrentSection('community')}
+          onClick={() => {
+            if (user) {
+              setCurrentSection('community');
+            } else {
+              setIsAuthModalOpen(true);
+            }
+          }}
           className={`px-4 py-2 rounded-xl font-medium transition-all ${
             currentSection === 'community'
               ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white shadow-lg'

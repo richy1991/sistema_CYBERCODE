@@ -11,32 +11,61 @@ const AuthModal = ({ isOpen = false, onClose = () => {}, onAuth = () => {} }) =>
     name: '',
     confirmPassword: ''
   });
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleSocialAuth = (provider) => {
-    // Simular autenticación social
-    const mockUser = {
-      id: '1',
-      name: 'Usuario Demo',
-      email: 'demo@cybercode.dev',
-      avatar: '/api/placeholder/40/40',
-      provider: provider
-    };
-    onAuth(mockUser);
-    onClose();
+    // For now, social auth is not implemented on the backend
+    setError(`Social login via ${provider} is not yet implemented.`);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simular autenticación con email
-    const mockUser = {
-      id: '1',
-      name: formData.name || 'Usuario',
-      email: formData.email,
-      avatar: '/api/placeholder/40/40',
-      provider: 'email'
-    };
-    onAuth(mockUser);
-    onClose();
+    setError(null);
+    setMessage(null);
+    setIsLoading(true);
+
+    if (!isLogin && formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      setIsLoading(false);
+      return;
+    }
+
+    const url = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const body = isLogin
+      ? { email: formData.email, password: formData.password }
+      : { name: formData.name, email: formData.email, password: formData.password };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+
+      if (isLogin) {
+        onAuth(data); // data should contain { token, user }
+        onClose();
+      } else {
+        setMessage("Registration successful! Please log in.");
+        setIsLogin(true); // Switch to login form
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const socialProviders = [
@@ -118,7 +147,7 @@ const AuthModal = ({ isOpen = false, onClose = () => {}, onAuth = () => {} }) =>
                 {socialProviders.map((provider, index) => (
                   <motion.button
                     key={provider.name}
-                    onClick={() => handleSocialAuth(provider.name.toLowerCase())}
+                    onClick={() => handleSocialAuth(provider.name)}
                     className={`w-full flex items-center justify-center gap-3 py-3 px-4 bg-gradient-to-r ${provider.color} ${provider.hoverColor} text-white rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -221,13 +250,38 @@ const AuthModal = ({ isOpen = false, onClose = () => {}, onAuth = () => {} }) =>
                   </motion.div>
                 )}
 
+                {/* Error and Message Display */}
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      className="p-3 bg-red-100 border border-red-400 text-red-700 rounded-xl"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+                  {message && (
+                    <motion.div
+                      className="p-3 bg-green-100 border border-green-400 text-green-700 rounded-xl"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                    >
+                      {message}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <motion.button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                  disabled={isLoading}
+                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+                  {isLoading ? 'Processing...' : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
                 </motion.button>
               </form>
 
@@ -236,7 +290,11 @@ const AuthModal = ({ isOpen = false, onClose = () => {}, onAuth = () => {} }) =>
                 <p className="text-gray-600">
                   {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
                   <button
-                    onClick={() => setIsLogin(!isLogin)}
+                    onClick={() => {
+                      setIsLogin(!isLogin);
+                      setError(null);
+                      setMessage(null);
+                    }}
                     className="ml-2 text-cyan-600 font-semibold hover:text-cyan-700 transition-colors"
                   >
                     {isLogin ? 'Regístrate' : 'Inicia sesión'}
