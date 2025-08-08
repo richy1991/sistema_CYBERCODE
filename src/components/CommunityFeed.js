@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   MessageCircle, 
@@ -14,62 +14,34 @@ import {
   Clock
 } from 'lucide-react';
 
-const CommunityFeed = ({ user = null }) => {
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      author: {
-        name: 'Richard Nina Melendres',
-        avatar: '/api/placeholder/40/40',
-        role: 'Fundador & Experto en Ciberseguridad',
-        verified: true
-      },
-      content: '🔒 Nuevo artículo sobre implementación de autenticación JWT segura en aplicaciones React. ¿Qué métodos de seguridad adicionales recomiendan para proteger tokens?',
-      image: '/api/placeholder/500/300',
-      timestamp: '2 horas',
-      likes: 24,
-      comments: 8,
-      shares: 5,
-      category: 'security',
-      tags: ['JWT', 'React', 'Seguridad']
-    },
-    {
-      id: 2,
-      author: {
-        name: 'Ana García',
-        avatar: '/api/placeholder/40/40',
-        role: 'Desarrolladora Frontend',
-        verified: false
-      },
-      content: '¿Alguien ha trabajado con penetration testing en APIs REST? Necesito consejos sobre herramientas y metodologías. Mi aplicación maneja datos sensibles y quiero asegurarme de que esté bien protegida.',
-      timestamp: '4 horas',
-      likes: 12,
-      comments: 15,
-      shares: 3,
-      category: 'question',
-      tags: ['API', 'Testing', 'Seguridad']
-    },
-    {
-      id: 3,
-      author: {
-        name: 'Carlos Mendoza',
-        avatar: '/api/placeholder/40/40',
-        role: 'DevOps Engineer',
-        verified: false
-      },
-      content: 'Implementé un sistema de monitoreo de seguridad usando ELK Stack. Los resultados han sido increíbles para detectar patrones de ataques. ¿Quién más usa herramientas similares?',
-      image: '/api/placeholder/500/200',
-      timestamp: '6 horas',
-      likes: 18,
-      comments: 6,
-      shares: 8,
-      category: 'showcase',
-      tags: ['Monitoring', 'ELK', 'DevOps']
-    }
-  ]);
-
+const CommunityFeed = ({ user = null, token = null }) => {
+  const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('general');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchPosts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/posts');
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+      const data = await response.json();
+      setPosts(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchPosts();
+    }
+  }, [user]);
 
   const categories = [
     { id: 'general', name: 'General', icon: MessageCircle, color: 'from-blue-500 to-cyan-500' },
@@ -78,37 +50,64 @@ const CommunityFeed = ({ user = null }) => {
     { id: 'showcase', name: 'Proyecto', icon: Code, color: 'from-green-500 to-emerald-500' }
   ];
 
-  const handleLike = (postId) => {
-    setPosts(posts.map(post => 
-      post.id === postId 
-        ? { ...post, likes: post.likes + 1 }
-        : post
-    ));
+  const handleLike = async (postId) => {
+    if (!token) return;
+
+    // Optimistic UI update
+    setPosts(posts.map(post => {
+      if (post.id === postId) {
+        const alreadyLiked = post.likedByMe; // We'll need to add this field
+        return {
+          ...post,
+          likes: alreadyLiked ? post.likes - 1 : post.likes + 1,
+          likedByMe: !alreadyLiked
+        };
+      }
+      return post;
+    }));
+
+
+    try {
+      await fetch(`/api/posts/${postId}/like`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      // Optionally, refetch posts to get the most accurate state
+      // fetchPosts();
+    } catch (err) {
+      console.error("Failed to like post", err);
+      // Revert optimistic update on failure
+      fetchPosts();
+    }
   };
 
-  const handleSubmitPost = (e) => {
+  const handleSubmitPost = async (e) => {
     e.preventDefault();
-    if (!newPost.trim() || !user) return;
+    if (!newPost.trim() || !user || !token) return;
 
-    const post = {
-      id: Date.now(),
-      author: {
-        name: user.name,
-        avatar: user.avatar,
-        role: 'Miembro de la Comunidad',
-        verified: false
-      },
-      content: newPost,
-      timestamp: 'ahora',
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      category: selectedCategory,
-      tags: []
-    };
+    try {
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ content: newPost, category: selectedCategory, tags: [] })
+      });
 
-    setPosts([post, ...posts]);
-    setNewPost('');
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
+
+      const newPostData = await response.json();
+      setPosts([newPostData, ...posts]);
+      setNewPost('');
+
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const getCategoryConfig = (category) => {
@@ -129,11 +128,17 @@ const CommunityFeed = ({ user = null }) => {
         <p className="text-gray-600 mb-6">
           Inicia sesión para participar en discusiones, hacer preguntas y compartir conocimientos.
         </p>
-        <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all">
-          Iniciar Sesión
-        </button>
+        <p className="text-sm text-gray-500">(La funcionalidad de la comunidad requiere que el backend esté en ejecución)</p>
       </motion.div>
     );
+  }
+
+  if (isLoading) {
+    return <div className="text-center p-8">Cargando publicaciones...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center p-8 text-red-500">Error: {error}</div>;
   }
 
   return (
@@ -147,7 +152,7 @@ const CommunityFeed = ({ user = null }) => {
         <form onSubmit={handleSubmitPost} className="space-y-4">
           <div className="flex items-center gap-4">
             <img 
-              src={user.avatar} 
+              src={user.avatar || '/api/placeholder/40/40'}
               alt={user.name}
               className="w-12 h-12 rounded-full"
             />
@@ -255,7 +260,7 @@ const CommunityFeed = ({ user = null }) => {
                   </div>
                   <div className="flex items-center gap-1 text-gray-400 text-sm">
                     <Clock className="w-4 h-4" />
-                    {post.timestamp}
+                    {new Date(post.timestamp).toLocaleString()}
                   </div>
                   <motion.button
                     className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
@@ -304,7 +309,7 @@ const CommunityFeed = ({ user = null }) => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Heart className="w-5 h-5" />
+                    <Heart className={`w-5 h-5 ${post.likedByMe ? 'text-red-500 fill-current' : ''}`} />
                     <span className="font-medium">{post.likes}</span>
                   </motion.button>
 
