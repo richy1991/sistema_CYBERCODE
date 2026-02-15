@@ -15,7 +15,7 @@ const Header = ({ user = null, onLogin = () => {}, onLogout = () => {}, onNaviga
     >
       <div className="container mx-auto px-3 sm:px-4">
         <div className="flex items-center justify-between h-14 sm:h-16">
-          {/* Logo Hacker */}
+          {/* Logo Definitivo */}
           <motion.div
             className="flex items-center gap-2 sm:gap-3"
             whileHover={{ scale: 1.05 }}
@@ -28,36 +28,11 @@ const Header = ({ user = null, onLogin = () => {}, onLogout = () => {}, onNaviga
               }}
               whileTap={{ scale: 0.95 }}
             >
-              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" className="w-full h-full drop-shadow-lg">
-                <defs>
-                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-                    <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                </defs>
-                
-                {/* Left Chevrons < > */}
-                <g filter="url(#glow)">
-                  {/* Outer chevron < */}
-                  <path d="M 15 25 L 35 50 L 15 75" stroke="#00D9FF" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                  {/* Inner chevron < */}
-                  <path d="M 28 35 L 40 50 L 28 65" stroke="#00D9FF" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.7"/>
-                </g>
-                
-                {/* Right Chevrons > < */}
-                <g filter="url(#glow)">
-                  {/* Outer chevron > */}
-                  <path d="M 85 25 L 65 50 L 85 75" stroke="#00D9FF" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                  {/* Inner chevron > */}
-                  <path d="M 72 35 L 60 50 L 72 65" stroke="#00D9FF" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.7"/>
-                </g>
-                
-                {/* Center node/dot */}
-                <circle cx="50" cy="50" r="2" fill="#00D9FF" filter="url(#glow)"/>
-              </svg>
+              <img 
+                src="/logo.svg" 
+                alt="CyberCode Logo" 
+                className="w-full h-full drop-shadow-lg object-contain"
+              />
             </motion.div>
             <div>
               <h1 className="text-xl sm:text-2xl lg:text-3xl font-black bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg tracking-wider">
