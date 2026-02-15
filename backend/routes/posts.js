@@ -32,7 +32,9 @@ router.get('/', (req, res) => {
             p.image,
             p.category,
             p.timestamp,
+            u.id as user_id,
             u.name as author_name,
+            u.nickname as author_nickname,
             u.avatar as author_avatar,
             u.role as author_role,
             u.verified as author_verified,
@@ -56,7 +58,9 @@ router.get('/', (req, res) => {
             category: post.category,
             timestamp: post.timestamp,
             author: {
+                id: post.user_id,
                 name: post.author_name,
+                nickname: post.author_nickname,
                 avatar: post.author_avatar,
                 role: post.author_role,
                 verified: post.author_verified === 1

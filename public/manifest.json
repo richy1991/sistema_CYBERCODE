@@ -1,0 +1,18 @@
+{
+  "short_name": "CyberCode",
+  "name": "CYBERCODE - La Base de Tu Seguridad",
+  "description": "Expertos en ciberseguridad y desarrollo seguro. La base de tu seguridad está en nuestro código.",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#00D9FF",
+  "background_color": "#000000",
+  "orientation": "portrait-primary"
+}

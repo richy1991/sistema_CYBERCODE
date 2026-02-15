@@ -4,6 +4,8 @@ const db = require('./database.js'); // Import the database connection
 
 const authRoutes = require('./routes/auth.js');
 const postRoutes = require('./routes/posts.js');
+const adminRoutes = require('./routes/admin.js');
+const developerRoutes = require('./routes/developers.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,6 +17,8 @@ app.use(express.json());
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/developers', developerRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -22,9 +26,8 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-// I will comment this out for now, as I cannot run it.
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 module.exports = app; // Export app for potential testing in the future

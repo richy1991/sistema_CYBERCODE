@@ -1,3 +1,222 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Estilos de Producción para Sección de Servicios */
+
+/* Animación de Sombra Flotante 3D */
+@keyframes float-shadow {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* Animación de Brillo */
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Animación de Gradiente Móvil */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Clase para efecto de sombra flotante */
+.float-shadow {
+  animation: float-shadow 3s ease-in-out infinite;
+}
+
+/* Clase para brillo pulsante */
+.glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Clase para gradiente animado */
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Efectos de Sombra Avanzados */
+.shadow-3d {
+  box-shadow: 
+    0 10px 20px -5px rgba(0, 0, 0, 0.1),
+    0 20px 40px -10px rgba(0, 0, 0, 0.2),
+    0 30px 60px -15px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-3d-hover:hover {
+  box-shadow: 
+    0 20px 40px -5px rgba(0, 0, 0, 0.2),
+    0 40px 80px -10px rgba(0, 0, 0, 0.3),
+    0 60px 120px -15px rgba(0, 0, 0, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Efecto de Cristal Frosted */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background-color: rgba(15, 23, 42, 0.8);
+}
+
+/* Efecto de Brillo en Bordes */
+.glow-border {
+  position: relative;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.glow-border::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #06b6d4, #a855f7, #ec4899, #06b6d4);
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.glow-border:hover::before {
+  opacity: 0.7;
+}
+
+/* Estilos de Tarjetas de Servicio Mejorados */
+.service-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+  z-index: 1;
+}
+
+.service-card:hover::before {
+  left: 100%;
+}
+
+/* Animación de Entrada Escalonada */
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stagger-item {
+  animation: stagger-in 0.6s ease-out forwards;
+}
+
+/* Estilo de Botones Mejorado */
+.btn-gradient {
+  position: relative;
+  overflow: hidden;
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+.btn-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Efecto de Hover en Iconos */
+.icon-float {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.icon-float:hover {
+  transform: translateY(-10px) scale(1.1);
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+}
+
+/* Estilos Responsivos */
+@media (max-width: 768px) {
+  .shadow-3d {
+    box-shadow: 
+      0 5px 10px -3px rgba(0, 0, 0, 0.1),
+      0 10px 20px -5px rgba(0, 0, 0, 0.2);
+  }
+
+  .service-card {
+    transform: scale(1);
+  }
+}
+
+/* Animación de Texto Gradiente */
+@keyframes text-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.text-gradient-animate {
+  background: linear-gradient(90deg, #06b6d4, #a855f7, #ec4899, #06b6d4);
+  background-size: 200% 200%;
+  animation: text-gradient 3s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Efecto de Sombra Neón */
+.neon-shadow {
+  box-shadow: 
+    0 0 10px rgba(6, 182, 212, 0.3),
+    0 0 20px rgba(168, 85, 247, 0.2),
+    inset 0 0 10px rgba(6, 182, 212, 0.1);
+}
+
+.neon-shadow:hover {
+  box-shadow: 
+    0 0 20px rgba(6, 182, 212, 0.5),
+    0 0 40px rgba(168, 85, 247, 0.4),
+    inset 0 0 20px rgba(6, 182, 212, 0.2);
+}
