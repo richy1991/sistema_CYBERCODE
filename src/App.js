@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import AuthModal from './components/AuthModal';
@@ -181,6 +182,7 @@ const App = () => {
             </div>
           </footer>
         </div>
+        <SpeedInsights />
       </div>
     </GoogleOAuthProvider>
   );
